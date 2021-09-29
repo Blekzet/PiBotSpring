@@ -1,51 +1,48 @@
 package ru.blekzet.pibot.listeners;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.blekzet.pibot.sender.PictureSenderInterface;
+import ru.blekzet.pibot.service.CollectListenersService;
 
+import javax.annotation.PostConstruct;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Component
 public class PictureAttachmentMessageListener implements MessageCreateListener {
 
     private String authorNickname;
     private URL pictureUrl;
+    private final PictureSenderInterface pictureUrlToOwnerSender;
+    private final CollectListenersService collectListenersService;
 
-    private PictureSenderInterface pictureUrlToOwnerSender;
-
-    @Autowired
-    public PictureAttachmentMessageListener(PictureSenderInterface pictureUrlToOwnerSender){
-        this.pictureUrlToOwnerSender = pictureUrlToOwnerSender;
-    }
     @Override
     public void onMessageCreate(MessageCreateEvent messageCreateEvent) {
-        if(messageCreateEvent.getMessageContent().startsWith("!pic")){
-            authorNickname = messageCreateEvent.getMessage().getAuthor().getDisplayName();
-            try {
-                if(messageCreateEvent.getMessageAttachments().isEmpty()) {
-                    pictureUrl = new URL(messageCreateEvent.getMessageContent().substring(4));
-                } else {
-                    pictureAsAttachmentHandler(messageCreateEvent);
+        if (messageCreateEvent.getServerTextChannel().isPresent()){
+            if(messageCreateEvent.getServerTextChannel().get().getName().equals("pibot-home") && messageCreateEvent.getMessageContent().startsWith("!pic")){
+                authorNickname = messageCreateEvent.getMessage().getAuthor().getDisplayName();
+                try {
+                    if(messageCreateEvent.getMessageAttachments().isEmpty()) {
+                        pictureUrl = new URL(messageCreateEvent.getMessageContent().substring(4));
+                    } else {
+                        pictureAsAttachmentHandler(messageCreateEvent);
+                    }
+                    pictureUrlToOwnerSender.send(messageCreateEvent.getServer(), authorNickname, pictureUrl);
+                    messageCreateEvent.getChannel().sendMessage("Картинка принята на рассмотрение!");
+                } catch (NullPointerException | MalformedURLException exception){
+                    messageCreateEvent.getChannel().sendMessage("Введите верную комманду " +
+                                                                "\n 1) !pic {Url картинки без скобочек} " +
+                                                                "\n 2) !pic {вложить в сообщение картинку}");
                 }
-                pictureUrlToOwnerSender.send(messageCreateEvent.getServer(), authorNickname, pictureUrl);
-                messageCreateEvent.getChannel().sendMessage("Картинка принята на рассмотрение!");
-            } catch (NullPointerException | MalformedURLException exception){
-                messageCreateEvent.getChannel().sendMessage("Неправильный URL изображения");
             }
-        } else if (!messageCreateEvent.getMessageAuthor().isYourself()){
-            messageCreateEvent.getChannel().sendMessage("Введите верную комманду " +
-                    "\n 1) !pic {Url картинки без скобочек} " +
-                    "\n 2) !pic {вложить в сообщение картинку}");
         }
     }
 
@@ -58,5 +55,10 @@ public class PictureAttachmentMessageListener implements MessageCreateListener {
                 pictureUrl = attachment.getUrl();
             }
         }
+    }
+
+    @PostConstruct
+    public void addListenerToContext(){
+        collectListenersService.addListenerToContext(this);
     }
 }
