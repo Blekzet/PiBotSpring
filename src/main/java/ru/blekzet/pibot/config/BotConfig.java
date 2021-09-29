@@ -16,16 +16,8 @@ public class BotConfig {
     @Value("${token}")
     private String token;
 
-    @Autowired
-    private PictureAttachmentMessageListener pictureAttachmentMessageListener;
-
     @Bean
     public DiscordApi discordApi() {
         return new DiscordApiBuilder().setToken(token).login().join();
-    }
-
-    @PostConstruct
-    private void discordApiPostConstruct(){
-        discordApi().addListener(pictureAttachmentMessageListener);
     }
 }
