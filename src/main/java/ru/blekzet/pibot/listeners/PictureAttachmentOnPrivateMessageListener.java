@@ -42,15 +42,17 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
             }
 
             if(messageCreateEvent.getMessageAuthor().asUser().isPresent()) {
-                List<Server> userServers = new ArrayList<>(messageCreateEvent.getMessageAuthor().asUser().get().getMutualServers());
+                List<Server> userServers = new ArrayList<>(messageCreateEvent.getApi().getServers());
+                long senderId = messageCreateEvent.getMessageAuthor().getId();
                 for(Server server: userServers){
-                    if(server.getName().equals(serverName.toString())){
+                    if(server.getName().replace(" ", "").equals(serverName.toString()) && (server.getMemberById(senderId).isPresent() || server.getOwnerId() == senderId)){
                         serverId = server.getId();
                         recipientUserId = server.getOwnerId();
                         break;
                     }
                 }
             }
+
             if(recipientUserId == 0 || serverId == 0){
                 errorMessage(messageCreateEvent);
             } else {
