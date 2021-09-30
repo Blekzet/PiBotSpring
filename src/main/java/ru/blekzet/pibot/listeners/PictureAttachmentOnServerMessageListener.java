@@ -8,15 +8,15 @@ import ru.blekzet.pibot.sender.PictureSenderInterface;
 import ru.blekzet.pibot.service.CollectListenersService;
 
 import javax.annotation.PostConstruct;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 @Component
 public class PictureAttachmentOnServerMessageListener extends PictureAttachmentMessageListener{
-    private final CollectListenersService collectListenersService;
 
     @Autowired
     public PictureAttachmentOnServerMessageListener(PictureSenderInterface pictureUrlToRecipientSender, CollectListenersService collectListenersService) {
-        super(pictureUrlToRecipientSender);
-        this.collectListenersService = collectListenersService;
+        super(pictureUrlToRecipientSender, collectListenersService);
     }
 
     @Override
@@ -24,7 +24,13 @@ public class PictureAttachmentOnServerMessageListener extends PictureAttachmentM
         if (messageCreateEvent.getServerTextChannel().isPresent() && messageCreateEvent.getServer().isPresent()){
             if(messageCreateEvent.getServerTextChannel().get().getName().equals("pibot-home") && messageCreateEvent.getMessageContent().startsWith("!pic")){
                 long recipientUserId = messageCreateEvent.getServer().get().getOwnerId();
-                execute(messageCreateEvent, recipientUserId);
+                long serverId = messageCreateEvent.getServer().get().getId();
+                try {
+                    pictureUrl = new URL(messageCreateEvent.getMessageContent().substring(4));
+                } catch (MalformedURLException e) {
+                    errorMessage(messageCreateEvent);
+                }
+                execute(messageCreateEvent, recipientUserId, serverId, pictureUrl);
             }
         }
     }

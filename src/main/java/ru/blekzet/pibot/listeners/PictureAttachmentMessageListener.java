@@ -3,6 +3,7 @@ package ru.blekzet.pibot.listeners;
 import lombok.RequiredArgsConstructor;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.event.message.MessageCreateEvent;
+import org.javacord.api.event.message.MessageEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.stereotype.Component;
 import ru.blekzet.pibot.sender.PictureSenderInterface;
@@ -15,24 +16,22 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public abstract class PictureAttachmentMessageListener implements MessageCreateListener {
-
-    private URL pictureUrl;
+    protected URL pictureUrl;
     private final PictureSenderInterface pictureUrlToRecipientSender;
+    protected final CollectListenersService collectListenersService;
 
-    public void execute(MessageCreateEvent messageCreateEvent, long recipientId){
+    public void execute(MessageCreateEvent messageCreateEvent, long recipientId, long ServerId, URL pictureUrl){
         String authorNickname = messageCreateEvent.getMessage().getAuthor().getDisplayName();
         try {
             if(messageCreateEvent.getMessageAttachments().isEmpty()) {
-                pictureUrl = new URL(messageCreateEvent.getMessageContent().substring(4));
+                this.pictureUrl = pictureUrl;
             } else {
                 pictureAsAttachmentHandler(messageCreateEvent);
             }
             pictureUrlToRecipientSender.send(recipientId, authorNickname, pictureUrl);
             messageCreateEvent.getChannel().sendMessage("Картинка принята на рассмотрение!");
-        } catch (NullPointerException | MalformedURLException exception){
-            messageCreateEvent.getChannel().sendMessage("Введите верную комманду " +
-                    "\n 1) !pic {Url картинки без скобочек} " +
-                    "\n 2) !pic {вложить в сообщение картинку}");
+        } catch (NullPointerException exception){
+            errorMessage(messageCreateEvent);
         }
     }
     private void pictureAsAttachmentHandler(MessageCreateEvent messageCreateEvent){
@@ -44,6 +43,11 @@ public abstract class PictureAttachmentMessageListener implements MessageCreateL
                 pictureUrl = attachment.getUrl();
             }
         }
+    }
+    protected void errorMessage(MessageCreateEvent messageCreateEvent){
+        messageCreateEvent.getChannel().sendMessage("Введите верную комманду " +
+                "\n 1) !pic {Url картинки без скобочек} " +
+                "\n 2) !pic {вложить в сообщение картинку}");
     }
     public abstract void addListenerToContext();
 }
