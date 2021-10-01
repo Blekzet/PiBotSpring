@@ -30,7 +30,7 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
             StringBuilder serverName = new StringBuilder();
             long serverId = 0;
             long recipientUserId = 0;
-            int attachmentVariant = 2;
+            int attachmentVariant = 0;
 
             try {
                 if(messageCreateEvent.getMessageAttachments().isEmpty()) {
