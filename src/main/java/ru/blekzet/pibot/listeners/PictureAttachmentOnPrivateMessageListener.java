@@ -30,14 +30,20 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
             StringBuilder serverName = new StringBuilder();
             long serverId = 0;
             long recipientUserId = 0;
+            int attachmentVariant = 0;
 
             try {
-                pictureUrl = new URL(separatedCommand[separatedCommand.length - 1]);
+                if(messageCreateEvent.getMessageAttachments().isEmpty()) {
+                    pictureUrl = new URL(separatedCommand[separatedCommand.length - 1]);
+                    attachmentVariant = 2;
+                } else {
+                    pictureUrl = pictureAsAttachmentHandler(messageCreateEvent);
+                    attachmentVariant = 1;
+                }
             } catch (MalformedURLException e) {
                 errorMessage(messageCreateEvent);
             }
-
-            for(int i = 1; i <= separatedCommand.length-2; i++){
+            for(int i = 1; i <= separatedCommand.length-attachmentVariant; i++){
                 serverName.append(separatedCommand[i]);
             }
 
