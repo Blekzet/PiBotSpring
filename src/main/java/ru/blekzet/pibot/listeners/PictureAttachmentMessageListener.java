@@ -23,18 +23,14 @@ public abstract class PictureAttachmentMessageListener implements MessageCreateL
     public void execute(MessageCreateEvent messageCreateEvent, long recipientId, long ServerId, URL pictureUrl){
         String authorNickname = messageCreateEvent.getMessage().getAuthor().getDisplayName();
         try {
-            if(messageCreateEvent.getMessageAttachments().isEmpty()) {
-                this.pictureUrl = pictureUrl;
-            } else {
-                pictureAsAttachmentHandler(messageCreateEvent);
-            }
+            this.pictureUrl = pictureUrl;
             pictureUrlToRecipientSender.send(recipientId, authorNickname, pictureUrl);
             messageCreateEvent.getChannel().sendMessage("Картинка принята на рассмотрение!");
         } catch (NullPointerException exception){
             errorMessage(messageCreateEvent);
         }
     }
-    private void pictureAsAttachmentHandler(MessageCreateEvent messageCreateEvent){
+    protected URL pictureAsAttachmentHandler(MessageCreateEvent messageCreateEvent){
         List<MessageAttachment> attachments;
         attachments = messageCreateEvent.getMessageAttachments();
 
@@ -43,6 +39,7 @@ public abstract class PictureAttachmentMessageListener implements MessageCreateL
                 pictureUrl = attachment.getUrl();
             }
         }
+        return pictureUrl;
     }
     protected void errorMessage(MessageCreateEvent messageCreateEvent){
         messageCreateEvent.getChannel().sendMessage("Введите верную комманду " +

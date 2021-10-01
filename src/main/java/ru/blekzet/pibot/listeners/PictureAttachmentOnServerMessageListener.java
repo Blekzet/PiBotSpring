@@ -26,7 +26,11 @@ public class PictureAttachmentOnServerMessageListener extends PictureAttachmentM
                 long recipientUserId = messageCreateEvent.getServer().get().getOwnerId();
                 long serverId = messageCreateEvent.getServer().get().getId();
                 try {
-                    pictureUrl = new URL(messageCreateEvent.getMessageContent().substring(4));
+                    if(messageCreateEvent.getMessageAttachments().isEmpty()) {
+                        pictureUrl = new URL(messageCreateEvent.getMessageContent().substring(4));
+                    } else {
+                        pictureUrl = pictureAsAttachmentHandler(messageCreateEvent);
+                    }
                 } catch (MalformedURLException e) {
                     errorMessage(messageCreateEvent);
                 }
