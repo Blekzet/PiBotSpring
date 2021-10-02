@@ -1,9 +1,9 @@
-package ru.blekzet.pibot.listeners;
+package ru.blekzet.pibot.listeners.server;
 
-import lombok.*;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.blekzet.pibot.listeners.PictureAttachmentMessageListener;
 import ru.blekzet.pibot.sender.PictureSenderInterface;
 import ru.blekzet.pibot.service.CollectListenersService;
 
@@ -12,7 +12,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @Component
-public class PictureAttachmentOnServerMessageListener extends PictureAttachmentMessageListener{
+public class PictureAttachmentOnServerMessageListener extends PictureAttachmentMessageListener {
 
     @Autowired
     public PictureAttachmentOnServerMessageListener(PictureSenderInterface pictureUrlToRecipientSender, CollectListenersService collectListenersService) {

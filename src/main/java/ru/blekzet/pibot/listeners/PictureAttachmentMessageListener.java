@@ -3,14 +3,10 @@ package ru.blekzet.pibot.listeners;
 import lombok.RequiredArgsConstructor;
 import org.javacord.api.entity.message.MessageAttachment;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.event.message.MessageEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
-import org.springframework.stereotype.Component;
 import ru.blekzet.pibot.sender.PictureSenderInterface;
 import ru.blekzet.pibot.service.CollectListenersService;
 
-import javax.annotation.PostConstruct;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
