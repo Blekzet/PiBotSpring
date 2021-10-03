@@ -41,16 +41,19 @@ public class JoyreactorParser {
 
     public List<String> getRandomPictures(){
         Elements postList = seizeRandomPage().getElementsByClass("postContainer");
-        List<List<String>> pictureList = new ArrayList<>(10);
+        List<String> pictureList = new ArrayList<>(10);
+        int randomPostNumber = random.nextInt(9);
 
-        int listIndex = 0;for (Element element: postList.select(".post_content")){
-            pictureList.add(new ArrayList<>(1));
-            for(Element child: element.select("img")) {
-                pictureList.get(listIndex).add(child.attr("src"));
+        int i = 0;
+        for (Element element: postList.select(".post_content")){
+            if (i == randomPostNumber) {
+                for (Element child : element.select("img")) {
+                    pictureList.add(child.attr("src"));
+                }
             }
-            listIndex++;
+            i++;
         }
 
-        return pictureList.get(random.nextInt(pictureList.size()-1));
+        return pictureList;
     }
 }

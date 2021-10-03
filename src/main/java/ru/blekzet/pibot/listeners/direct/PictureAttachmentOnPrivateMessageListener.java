@@ -4,7 +4,7 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.blekzet.pibot.listeners.PictureAttachmentCommandListener;
+import ru.blekzet.pibot.listeners.PictureAttachmentMessageListener;
 import ru.blekzet.pibot.sender.PictureSenderInterface;
 import ru.blekzet.pibot.service.CollectListenersService;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class PictureAttachmentOnPrivateMessageListener extends PictureAttachmentCommandListener {
+public class PictureAttachmentOnPrivateMessageListener extends PictureAttachmentMessageListener {
     private long serverId = 0;
     private long recipientUserId = 0;
     @Autowired
