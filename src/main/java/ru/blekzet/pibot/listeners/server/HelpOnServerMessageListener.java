@@ -19,8 +19,8 @@ public class HelpOnServerMessageListener implements MessageCreateListener {
         if (messageCreateEvent.getServerTextChannel().isPresent()){
             if(messageCreateEvent.getServerTextChannel().get().getName().equals("pibot-home") && messageCreateEvent.getMessageContent().equals("!help")){
                 messageCreateEvent.getChannel().sendMessage("Команды бота:" +
-                        "\n 1) !pic {Url картинки без скобочек}" +
-                        "\n 2) !pic {вложить в сообщение картинку}");
+                        "\n 1) !pic {Url картинки без скобочек} или {вложить в сообщение картинку} отправить картинку владельцу сервера" +
+                        "\n 2) !tellmeajoke бот покажет случайный мем");
             }
         }
     }

@@ -4,18 +4,16 @@ import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.blekzet.pibot.listeners.PictureAttachmentMessageListener;
+import ru.blekzet.pibot.listeners.PictureAttachmentCommandListener;
 import ru.blekzet.pibot.sender.PictureSenderInterface;
 import ru.blekzet.pibot.service.CollectListenersService;
 
 import javax.annotation.PostConstruct;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class PictureAttachmentOnPrivateMessageListener extends PictureAttachmentMessageListener {
+public class PictureAttachmentOnPrivateMessageListener extends PictureAttachmentCommandListener {
     private long serverId = 0;
     private long recipientUserId = 0;
     @Autowired
@@ -30,20 +28,15 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
 
             int attachmentVariant = 0;
 
-            try {
-                if(messageCreateEvent.getMessageAttachments().isEmpty()) {
-                    pictureUrl = new URL(separatedCommand[separatedCommand.length - 1]);
-                    attachmentVariant = 2;
-                } else {
-                    pictureUrl = pictureAsAttachmentHandler(messageCreateEvent);
-                    attachmentVariant = 1;
-                }
-            } catch (MalformedURLException e) {
-                errorMessage(messageCreateEvent);
+            if(messageCreateEvent.getMessageAttachments().isEmpty()) {
+                pictureUrl = separatedCommand[separatedCommand.length - 1];
+                attachmentVariant = 2;
+            } else {
+                pictureUrl = pictureAsAttachmentHandler(messageCreateEvent);
+                attachmentVariant = 1;
             }
 
             String enteredServerName = buildServerNameByVariant(separatedCommand, attachmentVariant);
-
             confirmEnteredServerNameAndGetServerRecipientId(messageCreateEvent, enteredServerName);
 
             if(recipientUserId == 0 || serverId == 0){
