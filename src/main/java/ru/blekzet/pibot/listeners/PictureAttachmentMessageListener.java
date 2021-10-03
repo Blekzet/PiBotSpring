@@ -10,7 +10,7 @@ import ru.blekzet.pibot.service.CollectListenersService;
 import java.util.List;
 
 @RequiredArgsConstructor
-public abstract class PictureAttachmentCommandListener implements MessageCreateListener {
+public abstract class PictureAttachmentMessageListener implements MessageCreateListener {
     protected String pictureUrl;
     private final PictureSenderInterface pictureUrlToRecipientSender;
     protected final CollectListenersService collectListenersService;
