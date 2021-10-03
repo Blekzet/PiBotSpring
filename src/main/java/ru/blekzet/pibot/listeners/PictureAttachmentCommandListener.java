@@ -7,16 +7,15 @@ import org.javacord.api.listener.message.MessageCreateListener;
 import ru.blekzet.pibot.sender.PictureSenderInterface;
 import ru.blekzet.pibot.service.CollectListenersService;
 
-import java.net.URL;
 import java.util.List;
 
 @RequiredArgsConstructor
-public abstract class PictureAttachmentMessageListener implements MessageCreateListener {
-    protected URL pictureUrl;
+public abstract class PictureAttachmentCommandListener implements MessageCreateListener {
+    protected String pictureUrl;
     private final PictureSenderInterface pictureUrlToRecipientSender;
     protected final CollectListenersService collectListenersService;
 
-    public void execute(MessageCreateEvent messageCreateEvent, long recipientId, long ServerId, URL pictureUrl){
+    public void execute(MessageCreateEvent messageCreateEvent, long recipientId, long ServerId, String pictureUrl){
         String authorNickname = messageCreateEvent.getMessage().getAuthor().getDisplayName();
         try {
             this.pictureUrl = pictureUrl;
@@ -26,13 +25,13 @@ public abstract class PictureAttachmentMessageListener implements MessageCreateL
             errorMessage(messageCreateEvent);
         }
     }
-    protected URL pictureAsAttachmentHandler(MessageCreateEvent messageCreateEvent){
+    protected String pictureAsAttachmentHandler(MessageCreateEvent messageCreateEvent){
         List<MessageAttachment> attachments;
         attachments = messageCreateEvent.getMessageAttachments();
 
         for(MessageAttachment attachment: attachments){
             if(attachment.isImage()){
-                pictureUrl = attachment.getUrl();
+                pictureUrl = attachment.getUrl().toString();
             }
         }
         return pictureUrl;

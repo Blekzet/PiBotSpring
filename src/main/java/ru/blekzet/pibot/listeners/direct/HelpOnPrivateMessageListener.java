@@ -18,8 +18,8 @@ public class HelpOnPrivateMessageListener implements MessageCreateListener  {
     public void onMessageCreate(MessageCreateEvent messageCreateEvent) {
         if(messageCreateEvent.isPrivateMessage() && messageCreateEvent.getMessageContent().equals("!help")){
             messageCreateEvent.getChannel().sendMessage("Команды бота:" +
-                    "\n 1) !pic {Имя сервера без ковычек} {Url картинки без скобочек}" +
-                    "\n 2) !pic {Имя сервера без ковычек} {вложить в сообщение картинку}");
+                    "\n 1) !pic {Имя сервера без ковычек} {Url картинки без скобочек} или {вложить в сообщение картинку} отправить картинку владельцу сервера" +
+                    "\n 2) !tellmeajoke бот покажет случайный мем");
         }
     }
 
