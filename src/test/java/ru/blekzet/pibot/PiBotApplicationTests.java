@@ -3,7 +3,7 @@ package ru.blekzet.pibot;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.blekzet.pibot.service.JoyreactorParser;
+import ru.blekzet.pibot.service.parser.JoyreactorParser;
 
 @SpringBootTest
 class PiBotApplicationTests {

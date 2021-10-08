@@ -7,7 +7,7 @@ import org.javacord.api.listener.message.MessageCreateListener;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.blekzet.pibot.service.CollectListenersService;
-import ru.blekzet.pibot.service.JoyreactorParser;
+import ru.blekzet.pibot.service.parser.JoyreactorParser;
 
 import javax.annotation.PostConstruct;
 

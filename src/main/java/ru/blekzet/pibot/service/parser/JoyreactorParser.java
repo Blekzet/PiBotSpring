@@ -1,4 +1,4 @@
-package ru.blekzet.pibot.service;
+package ru.blekzet.pibot.service.parser;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

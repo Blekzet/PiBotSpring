@@ -14,6 +14,8 @@ import java.util.List;
 
 @Component
 public class PictureAttachmentOnPrivateMessageListener extends PictureAttachmentMessageListener {
+    private long serverId = 0;
+    private long recipientUserId = 0;
     @Autowired
     public PictureAttachmentOnPrivateMessageListener(PictureSenderInterface pictureUrlToRecipientSender, CollectListenersService collectListenersService) {
         super(pictureUrlToRecipientSender, collectListenersService);
@@ -24,7 +26,7 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
         if(messageCreateEvent.isPrivateMessage() && messageCreateEvent.getMessageContent().startsWith("!pic")){
             String[] separatedCommand = messageCreateEvent.getMessageContent().split(" ");
 
-            int attachmentVariant;
+            int attachmentVariant = 0;
 
             if(messageCreateEvent.getMessageAttachments().isEmpty()) {
                 pictureUrl = separatedCommand[separatedCommand.length - 1];
@@ -35,12 +37,13 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
             }
 
             String enteredServerName = buildServerNameByVariant(separatedCommand, attachmentVariant);
-            Server confirmedServer = confirmEnteredServerName(messageCreateEvent, enteredServerName);
+            confirmEnteredServerNameAndGetServerRecipientId(messageCreateEvent, enteredServerName);
 
-            long serverId = confirmedServer.getId();
-            long recipientUserId = confirmedServer.getOwnerId();
-
-            execute(messageCreateEvent, recipientUserId, serverId, pictureUrl);
+            if(recipientUserId == 0 || serverId == 0){
+                errorMessage(messageCreateEvent);
+            } else {
+                execute(messageCreateEvent, recipientUserId, serverId, pictureUrl);
+            }
         }
     }
 
@@ -52,17 +55,18 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
         return serverNameBuilder.toString();
     }
 
-    private Server confirmEnteredServerName(MessageCreateEvent messageCreateEvent, String enteredServerName) throws RuntimeException{
+    private void confirmEnteredServerNameAndGetServerRecipientId(MessageCreateEvent messageCreateEvent, String enteredServerName){
         if(messageCreateEvent.getMessageAuthor().asUser().isPresent()) {
-            List<Server> botServers = new ArrayList<>(messageCreateEvent.getApi().getServers());
+            List<Server> userServers = new ArrayList<>(messageCreateEvent.getApi().getServers());
             long senderId = messageCreateEvent.getMessageAuthor().getId();
-            for(Server server: botServers){
+            for(Server server: userServers){
                 if(server.getName().replace(" ", "").equals(enteredServerName) && (server.getMemberById(senderId).isPresent() || server.getOwnerId() == senderId)){
-                    return server;
+                    serverId = server.getId();
+                    recipientUserId = server.getOwnerId();
+                    break;
                 }
             }
         }
-        throw new RuntimeException();
     }
 
     @Override
