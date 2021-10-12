@@ -4,7 +4,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.blekzet.pibot.listeners.PictureAttachmentMessageListener;
-import ru.blekzet.pibot.sender.PictureSenderInterface;
+import ru.blekzet.pibot.sender.PictureSenderToRecipientInterface;
 import ru.blekzet.pibot.service.CollectListenersService;
 
 import javax.annotation.PostConstruct;
@@ -13,7 +13,7 @@ import javax.annotation.PostConstruct;
 public class PictureAttachmentOnServerMessageListener extends PictureAttachmentMessageListener {
 
     @Autowired
-    public PictureAttachmentOnServerMessageListener(PictureSenderInterface pictureUrlToRecipientSender, CollectListenersService collectListenersService) {
+    public PictureAttachmentOnServerMessageListener(PictureSenderToRecipientInterface pictureUrlToRecipientSender, CollectListenersService collectListenersService) {
         super(pictureUrlToRecipientSender, collectListenersService);
     }
 
@@ -21,16 +21,14 @@ public class PictureAttachmentOnServerMessageListener extends PictureAttachmentM
     public void onMessageCreate(MessageCreateEvent messageCreateEvent) {
         if (messageCreateEvent.getServerTextChannel().isPresent() && messageCreateEvent.getServer().isPresent()){
             if(messageCreateEvent.getServerTextChannel().get().getName().equals("pibot-home") && messageCreateEvent.getMessageContent().startsWith("!pic")){
-                long recipientUserId = messageCreateEvent.getServer().get().getOwnerId();
-                long serverId = messageCreateEvent.getServer().get().getId();
 
                 if(messageCreateEvent.getMessageAttachments().isEmpty()) {
                     pictureUrl = messageCreateEvent.getMessageContent().substring(4);
                 } else {
                     pictureUrl = pictureAsAttachmentHandler(messageCreateEvent);
-
                 }
-                execute(messageCreateEvent, recipientUserId, serverId, pictureUrl);
+
+                execute(messageCreateEvent, messageCreateEvent.getServer().get(), pictureUrl);
                 messageCreateEvent.deleteMessage();
             }
         }

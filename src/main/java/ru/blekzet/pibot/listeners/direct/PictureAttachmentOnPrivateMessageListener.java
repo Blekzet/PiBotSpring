@@ -2,10 +2,9 @@ package ru.blekzet.pibot.listeners.direct;
 
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.event.message.MessageCreateEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.blekzet.pibot.listeners.PictureAttachmentMessageListener;
-import ru.blekzet.pibot.sender.PictureSenderInterface;
+import ru.blekzet.pibot.sender.PictureSenderToRecipientInterface;
 import ru.blekzet.pibot.service.CollectListenersService;
 
 import javax.annotation.PostConstruct;
@@ -14,10 +13,8 @@ import java.util.List;
 
 @Component
 public class PictureAttachmentOnPrivateMessageListener extends PictureAttachmentMessageListener {
-    private long serverId = 0;
-    private long recipientUserId = 0;
-    @Autowired
-    public PictureAttachmentOnPrivateMessageListener(PictureSenderInterface pictureUrlToRecipientSender, CollectListenersService collectListenersService) {
+
+    public PictureAttachmentOnPrivateMessageListener(PictureSenderToRecipientInterface pictureUrlToRecipientSender, CollectListenersService collectListenersService) {
         super(pictureUrlToRecipientSender, collectListenersService);
     }
 
@@ -26,7 +23,7 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
         if(messageCreateEvent.isPrivateMessage() && messageCreateEvent.getMessageContent().startsWith("!pic")){
             String[] separatedCommand = messageCreateEvent.getMessageContent().split(" ");
 
-            int attachmentVariant = 0;
+            int attachmentVariant;
 
             if(messageCreateEvent.getMessageAttachments().isEmpty()) {
                 pictureUrl = separatedCommand[separatedCommand.length - 1];
@@ -37,13 +34,16 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
             }
 
             String enteredServerName = buildServerNameByVariant(separatedCommand, attachmentVariant);
-            confirmEnteredServerNameAndGetServerRecipientId(messageCreateEvent, enteredServerName);
-
-            if(recipientUserId == 0 || serverId == 0){
-                errorMessage(messageCreateEvent);
-            } else {
-                execute(messageCreateEvent, recipientUserId, serverId, pictureUrl);
+            Server confirmedServer;
+            try {
+                confirmedServer = confirmEnteredServerNameAndGetServerRecipientId(messageCreateEvent, enteredServerName);
+            } catch (Exception e) {
+                messageCreateEvent.getChannel().sendMessage(e.getMessage());
+                return;
             }
+
+            execute(messageCreateEvent, confirmedServer, pictureUrl);
+
         }
     }
 
@@ -55,18 +55,17 @@ public class PictureAttachmentOnPrivateMessageListener extends PictureAttachment
         return serverNameBuilder.toString();
     }
 
-    private void confirmEnteredServerNameAndGetServerRecipientId(MessageCreateEvent messageCreateEvent, String enteredServerName){
+    private Server confirmEnteredServerNameAndGetServerRecipientId(MessageCreateEvent messageCreateEvent, String enteredServerName) throws Exception{
         if(messageCreateEvent.getMessageAuthor().asUser().isPresent()) {
             List<Server> userServers = new ArrayList<>(messageCreateEvent.getApi().getServers());
             long senderId = messageCreateEvent.getMessageAuthor().getId();
             for(Server server: userServers){
                 if(server.getName().replace(" ", "").equals(enteredServerName) && (server.getMemberById(senderId).isPresent() || server.getOwnerId() == senderId)){
-                    serverId = server.getId();
-                    recipientUserId = server.getOwnerId();
-                    break;
+                    return server;
                 }
             }
         }
+        throw new Exception("Бот не член, введенного вами, сервера");
     }
 
     @Override
