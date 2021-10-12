@@ -19,7 +19,7 @@ public class JoyreactorParser {
         random = new Random();
     }
 
-    private Document seizeRandomPage(){
+    private Document seizeRandomPage() {
         Document joyreactorHtmlDoc = null;
 
         try {
@@ -32,14 +32,14 @@ public class JoyreactorParser {
                 totalPages = Integer.parseInt(pagesTags.get(0).text());
             }
             joyreactorHtmlDoc = Jsoup.connect(joyreactorUrl + "/" + random.nextInt(totalPages)).get();
-        } catch (IOException|NullPointerException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
         return joyreactorHtmlDoc;
     }
 
-    public List<String> getRandomPictures(){
+    public List<String> getRandomPictures() throws NullPointerException {
         Elements postList = seizeRandomPage().getElementsByClass("postContainer");
         List<String> pictureList = new ArrayList<>(10);
         int randomPostNumber = random.nextInt(9);

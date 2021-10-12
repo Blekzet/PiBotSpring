@@ -10,6 +10,7 @@ import ru.blekzet.pibot.service.CollectListenersService;
 import ru.blekzet.pibot.service.parser.JoyreactorParser;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -24,7 +25,16 @@ public class TellJokeMessageListener implements MessageCreateListener {
         if (messageCreateEvent.getServerTextChannel().isPresent() || messageCreateEvent.isPrivateMessage()){
             if((messageCreateEvent.isPrivateMessage() || messageCreateEvent.getServerTextChannel().get().getName().equals("pibot-home")) && messageCreateEvent.getMessageContent().startsWith("!tellmeajoke")){
                 JoyreactorParser joyreactorParser = new JoyreactorParser(joyReactorUrl);
-                for (String picUrl: joyreactorParser.getRandomPictures()) {
+
+                List<String> randomPictures;
+                try {
+                    randomPictures = joyreactorParser.getRandomPictures();
+                }catch (NullPointerException e){
+                    messageCreateEvent.getChannel().sendMessage("Ошибка!\nВозможно, поменялся код сайта с которого брались картинки");
+                    return;
+                }
+
+                for (String picUrl: randomPictures) {
                     messageCreateEvent.getChannel().sendMessage(new EmbedBuilder().setImage(picUrl));
                 }
             }
